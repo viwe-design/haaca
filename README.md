@@ -1,5 +1,7 @@
 # AI Home Assistant Auditor
 
+![AI Home Assistant Auditor brain cover](assets/ai-home-auditor-brain.png)
+
 AI Home Assistant Auditor is a Home Assistant custom integration that scans local configuration, detects broken entity references in automations and scripts, asks an OpenAI-compatible model for additional audit findings, and safely previews or applies manual YAML fixes.
 
 ## MVP Scope
