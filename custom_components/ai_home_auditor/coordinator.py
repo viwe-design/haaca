@@ -32,6 +32,7 @@ class AIHomeAuditorCoordinator:
         self._last_scan: dict[str, Any] | None = None
         self._last_report: dict[str, Any] | None = None
         self._schedule_status: dict[str, Any] = {}
+        self._issue_actions: dict[str, dict[str, Any]] = {}
 
     @property
     def options(self) -> dict[str, Any]:
@@ -47,6 +48,9 @@ class AIHomeAuditorCoordinator:
             schedule_status = data.get("schedule_status")
             if isinstance(schedule_status, dict):
                 self._schedule_status = schedule_status
+            issue_actions = data.get("issue_actions")
+            if isinstance(issue_actions, dict):
+                self._issue_actions = issue_actions
 
     async def async_scan(self) -> dict[str, Any]:
         self._last_scan = await self.scanner.async_scan()
@@ -67,6 +71,43 @@ class AIHomeAuditorCoordinator:
         self._last_report = report.as_dict()
         await self._async_save_state()
         return self._last_report
+
+    async def async_issue_action(
+        self, issue_id: str, action: str, note: str | None = None
+    ) -> dict[str, Any]:
+        if action not in {"ignore", "fix", "recheck", "review"}:
+            raise ValueError("Unsupported issue action")
+
+        issue = self._find_issue(issue_id)
+        if issue is None:
+            raise ValueError("Issue not found")
+
+        result: dict[str, Any] = {
+            "issue_id": issue_id,
+            "action": action,
+            "updated_at": datetime.now(UTC).isoformat(),
+        }
+        if note:
+            result["note"] = note
+
+        if action == "ignore":
+            result["status"] = "ignored"
+        elif action == "review":
+            result["status"] = "needs_review"
+        elif action == "fix":
+            result["status"] = "needs_manual_fix"
+            result["suggested_fix"] = issue.get("suggested_fix")
+            result["yaml_fix"] = issue.get("yaml_fix")
+        else:
+            scan = await self.async_scan()
+            issue_key = self._issue_key(issue)
+            current_issue_keys = self._current_issue_keys(scan)
+            is_resolved = issue_key is not None and issue_key not in current_issue_keys
+            result["status"] = "resolved" if is_resolved else "still_present"
+
+        self._issue_actions[issue_id] = result
+        await self._async_save_state()
+        return result
 
     async def async_run_scheduled_audit(self) -> dict[str, Any]:
         if not self.options.get(CONF_DAILY_AUDIT, True):
@@ -110,14 +151,49 @@ class AIHomeAuditorCoordinator:
             {
                 "last_report": self._last_report,
                 "schedule_status": self._schedule_status,
+                "issue_actions": self._issue_actions,
             }
         )
 
     def _report_with_schedule_status(self, report: dict[str, Any]) -> dict[str, Any]:
-        return {
+        report_with_actions = {
             **report,
-            "schedule_status": self._schedule_status,
+            "issues": self._issues_with_actions(report.get("issues", [])),
         }
+        return {
+            **report_with_actions,
+            "schedule_status": self._schedule_status,
+            "issue_actions": self._issue_actions,
+        }
+
+    def _issues_with_actions(self, issues: Any) -> list[dict[str, Any]]:
+        if not isinstance(issues, list):
+            return []
+        enriched: list[dict[str, Any]] = []
+        for issue in issues:
+            if not isinstance(issue, dict):
+                continue
+            issue_id = str(issue.get("issue_id") or "")
+            action = self._issue_actions.get(issue_id, {})
+            enriched.append(
+                {
+                    **issue,
+                    "action_status": action.get("status", "open"),
+                    "last_action": action,
+                    "available_actions": self._available_actions(issue),
+                }
+            )
+        return enriched
+
+    def _available_actions(self, issue: dict[str, Any]) -> list[dict[str, str]]:
+        actions = [
+            {"id": "ignore", "label": "Ignore"},
+            {"id": "recheck", "label": "Recheck"},
+            {"id": "review", "label": "Review"},
+        ]
+        if issue.get("suggested_fix") or issue.get("yaml_fix"):
+            actions.insert(1, {"id": "fix", "label": "Fix"})
+        return actions
 
     def _scheduled_status(self, status: str, **extra: Any) -> dict[str, Any]:
         return {
@@ -135,6 +211,10 @@ class AIHomeAuditorCoordinator:
 
         for issue in self._last_report.get("issues", []):
             if not isinstance(issue, dict):
+                continue
+            issue_id = str(issue.get("issue_id") or "")
+            action_status = self._issue_actions.get(issue_id, {}).get("status")
+            if action_status in {"ignored", "resolved"}:
                 continue
             issue_key = self._issue_key(issue)
             if issue_key is not None and issue_key in current_issue_keys:
@@ -182,4 +262,12 @@ class AIHomeAuditorCoordinator:
             )
         if kind == "unavailable_entity":
             return (kind, "", "", str(issue.get("entity_id") or ""))
+        return None
+
+    def _find_issue(self, issue_id: str) -> dict[str, Any] | None:
+        if not self._last_report:
+            return None
+        for issue in self._last_report.get("issues", []):
+            if isinstance(issue, dict) and issue.get("issue_id") == issue_id:
+                return issue
         return None

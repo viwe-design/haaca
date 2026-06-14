@@ -15,6 +15,8 @@ interface AuditIssue {
   entity_id?: string;
   suggested_fix?: string;
   yaml_fix?: string;
+  action_status?: string;
+  available_actions?: Array<{ id: string; label: string }>;
 }
 
 interface AuditReport {
@@ -41,6 +43,7 @@ export class AIHomeAuditorPanel extends LitElement {
   @state() private report: AuditReport = {};
   @state() private previewDiff = "";
   @state() private backups: Record<string, unknown>[] = [];
+  @state() private actionResult = "";
 
   static styles = css`
     :host {
@@ -86,8 +89,23 @@ export class AIHomeAuditorPanel extends LitElement {
 
     .toolbar {
       display: flex;
+      flex-wrap: wrap;
       gap: 10px;
       margin-bottom: 16px;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .status {
+      display: inline-block;
+      border-radius: 999px;
+      padding: 4px 10px;
+      background: var(--secondary-background-color);
     }
 
     .issue {
@@ -145,6 +163,7 @@ export class AIHomeAuditorPanel extends LitElement {
 
       ${this.loading ? html`<p>Loading...</p>` : ""}
       ${this.error ? html`<p class="error">${this.error}</p>` : ""}
+      ${this.actionResult ? html`<p class="card">${this.actionResult}</p>` : ""}
       ${this.renderTab()}
     `;
   }
@@ -197,9 +216,19 @@ export class AIHomeAuditorPanel extends LitElement {
               <p>${issue.explanation}</p>
               <p><strong>Severity:</strong> ${issue.severity}</p>
               <p><strong>Risk:</strong> ${issue.risk}</p>
+              <p><strong>Status:</strong> <span class="status">${issue.action_status ?? "open"}</span></p>
               ${issue.entity_id ? html`<p><strong>Entity:</strong> ${issue.entity_id}</p>` : ""}
               ${issue.suggested_fix ? html`<p><strong>Fix:</strong> ${issue.suggested_fix}</p>` : ""}
               ${issue.yaml_fix ? html`<pre>${issue.yaml_fix}</pre>` : ""}
+              <div class="actions">
+                ${(issue.available_actions ?? []).map(
+                  (action) => html`
+                    <button @click=${() => this.issueAction(issue.issue_id, action.id)}>
+                      ${action.label}
+                    </button>
+                  `
+                )}
+              </div>
             </div>
           `
         )}
@@ -291,6 +320,13 @@ export class AIHomeAuditorPanel extends LitElement {
     await this.request("POST", "/api/ai_home_auditor/rollback", { backup_id: backupId }, () => this.loadBackups());
   }
 
+  private async issueAction(issueId: string, action: string) {
+    await this.request("POST", "/api/ai_home_auditor/issue_action", { issue_id: issueId, action }, (data) => {
+      this.actionResult = issueActionMessage(data as { status?: string });
+      void this.loadReport();
+    });
+  }
+
   private async request(method: string, url: string, body: unknown, onSuccess: (data: unknown) => void) {
     this.loading = true;
     this.error = "";
@@ -315,4 +351,13 @@ export class AIHomeAuditorPanel extends LitElement {
       this.loading = false;
     }
   }
+}
+
+function issueActionMessage(data: { status?: string }): string {
+  if (data.status === "ignored") return "Issue ignored. It will not block the next scheduled audit.";
+  if (data.status === "resolved") return "Issue rechecked and no longer present.";
+  if (data.status === "still_present") return "Issue rechecked and is still present.";
+  if (data.status === "needs_manual_fix") return "Fix requires manual review. Use the suggested fix or YAML snippet shown in the issue.";
+  if (data.status === "needs_review") return "Issue marked for review.";
+  return data.status ? `Action saved: ${data.status}` : "Action saved.";
 }

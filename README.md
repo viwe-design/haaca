@@ -41,7 +41,7 @@ Not implemented yet:
 4. Install the latest release.
 5. Restart Home Assistant.
 
-HACS should install a tagged release such as `v0.1.3`, not a raw commit SHA.
+HACS should install a tagged release such as `v0.1.4`, not a raw commit SHA.
 
 ### Manual
 
@@ -139,6 +139,16 @@ Authenticated Home Assistant endpoints:
 - `POST /api/ai_home_auditor/apply_fix`
 - `GET /api/ai_home_auditor/backups`
 - `POST /api/ai_home_auditor/rollback`
+- `POST /api/ai_home_auditor/issue_action`
+
+## Problem Actions
+
+Each problem in the panel has explicit actions:
+
+- `Ignore` marks the issue as ignored and prevents it from blocking the next scheduled audit.
+- `Fix` marks the issue as requiring manual fix and shows the suggested fix or YAML snippet when available.
+- `Recheck` rescans Home Assistant and marks the issue as `resolved` or `still_present`.
+- `Review` marks the issue for manual investigation.
 
 ## Safety Model
 

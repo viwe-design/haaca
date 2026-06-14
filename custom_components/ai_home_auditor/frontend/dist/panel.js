@@ -18,6 +18,7 @@
       this.report = {};
       this.previewDiff = "";
       this.backups = [];
+      this.actionResult = "";
     }
 
     connectedCallback() {
@@ -110,6 +111,20 @@
             color: var(--error-color);
           }
 
+          .status {
+            display: inline-block;
+            border-radius: 999px;
+            padding: 4px 10px;
+            background: var(--secondary-background-color);
+          }
+
+          .actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 12px;
+          }
+
           pre {
             overflow: auto;
             white-space: pre-wrap;
@@ -135,6 +150,7 @@
         </div>
         ${this.loading ? "<p>Loading...</p>" : ""}
         ${this.error ? `<p class="error">${escapeHtml(this.error)}</p>` : ""}
+        ${this.actionResult ? `<p class="card">${escapeHtml(this.actionResult)}</p>` : ""}
         ${this.renderActiveTab()}
       `;
 
@@ -162,6 +178,15 @@
 
       this.shadowRoot.querySelectorAll("[data-rollback]").forEach((button) => {
         button.addEventListener("click", () => this.rollback(button.getAttribute("data-rollback") || ""));
+      });
+
+      this.shadowRoot.querySelectorAll("[data-issue-action]").forEach((button) => {
+        button.addEventListener("click", () =>
+          this.issueAction(
+            button.getAttribute("data-issue-id") || "",
+            button.getAttribute("data-issue-action") || ""
+          )
+        );
       });
     }
 
@@ -216,10 +241,32 @@
                   <p>${escapeHtml(issue.explanation || "")}</p>
                   <p><strong>Severity:</strong> ${escapeHtml(issue.severity || "unknown")}</p>
                   <p><strong>Risk:</strong> ${escapeHtml(issue.risk || "unknown")}</p>
+                  <p><strong>Status:</strong> <span class="status">${escapeHtml(issue.action_status || "open")}</span></p>
                   ${issue.entity_id ? `<p><strong>Entity:</strong> ${escapeHtml(issue.entity_id)}</p>` : ""}
                   ${issue.suggested_fix ? `<p><strong>Fix:</strong> ${escapeHtml(issue.suggested_fix)}</p>` : ""}
                   ${issue.yaml_fix ? `<pre>${escapeHtml(issue.yaml_fix)}</pre>` : ""}
+                  ${this.renderIssueActions(issue)}
                 </div>
+              `
+            )
+            .join("")}
+        </div>
+      `;
+    }
+
+    renderIssueActions(issue) {
+      const actions = Array.isArray(issue.available_actions) ? issue.available_actions : [];
+      return `
+        <div class="actions">
+          ${actions
+            .map(
+              (action) => `
+                <button
+                  data-issue-id="${escapeAttribute(issue.issue_id || "")}"
+                  data-issue-action="${escapeAttribute(action.id || "")}"
+                >
+                  ${escapeHtml(action.label || action.id || "Action")}
+                </button>
               `
             )
             .join("")}
@@ -325,6 +372,19 @@
       await this.request("POST", "/api/ai_home_auditor/rollback", { backup_id: backupId }, () => this.loadBackups());
     }
 
+    async issueAction(issueId, action) {
+      if (!issueId || !action) return;
+      await this.request(
+        "POST",
+        "/api/ai_home_auditor/issue_action",
+        { issue_id: issueId, action },
+        (data) => {
+          this.actionResult = issueActionMessage(data);
+          this.loadReport();
+        }
+      );
+    }
+
     async request(method, url, body, onSuccess) {
       this.setState({ loading: true, error: "" });
       try {
@@ -362,6 +422,16 @@
 
   function escapeAttribute(value) {
     return escapeHtml(value).replace(/`/g, "&#096;");
+  }
+
+  function issueActionMessage(data) {
+    if (!data || !data.status) return "Action saved.";
+    if (data.status === "ignored") return "Issue ignored. It will not block the next scheduled audit.";
+    if (data.status === "resolved") return "Issue rechecked and no longer present.";
+    if (data.status === "still_present") return "Issue rechecked and is still present.";
+    if (data.status === "needs_manual_fix") return "Fix requires manual review. Use the suggested fix or YAML snippet shown in the issue.";
+    if (data.status === "needs_review") return "Issue marked for review.";
+    return `Action saved: ${data.status}`;
   }
 
   if (!customElements.get("ai-home-auditor-panel")) {

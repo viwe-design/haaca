@@ -19,6 +19,7 @@ def async_setup_api(hass: HomeAssistant) -> None:
     hass.http.register_view(AIHomeAuditorApplyFixView(hass))
     hass.http.register_view(AIHomeAuditorBackupsView(hass))
     hass.http.register_view(AIHomeAuditorRollbackView(hass))
+    hass.http.register_view(AIHomeAuditorIssueActionView(hass))
 
 
 def _coordinator(hass: HomeAssistant) -> AIHomeAuditorCoordinator:
@@ -120,6 +121,26 @@ class AIHomeAuditorRollbackView(HomeAssistantView):
             backup_id=str(body["backup_id"])
         )
         return self.json({"restored": True, "backup": result})
+
+
+class AIHomeAuditorIssueActionView(HomeAssistantView):
+    url = "/api/ai_home_auditor/issue_action"
+    name = "api:ai_home_auditor:issue_action"
+
+    def __init__(self, hass: HomeAssistant) -> None:
+        self._hass = hass
+
+    async def post(self, request: web.Request) -> web.Response:
+        body = await _json(request)
+        try:
+            result = await _coordinator(self._hass).async_issue_action(
+                issue_id=str(body["issue_id"]),
+                action=str(body["action"]),
+                note=str(body["note"]) if body.get("note") else None,
+            )
+        except (KeyError, ValueError) as err:
+            raise web.HTTPBadRequest(reason=str(err)) from err
+        return self.json(result)
 
 
 async def _json(request: web.Request) -> dict[str, Any]:
