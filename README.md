@@ -41,7 +41,7 @@ Not implemented yet:
 4. Install the latest release.
 5. Restart Home Assistant.
 
-HACS should install a tagged release such as `v0.1.2`, not a raw commit SHA.
+HACS should install a tagged release such as `v0.1.3`, not a raw commit SHA.
 
 ### Manual
 

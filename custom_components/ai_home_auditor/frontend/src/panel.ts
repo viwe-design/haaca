@@ -31,6 +31,10 @@ interface AuditReport {
 
 @customElement("ai-home-auditor-panel")
 export class AIHomeAuditorPanel extends LitElement {
+  public hass?: {
+    callApi: (method: string, path: string, body?: unknown) => Promise<unknown>;
+  };
+
   @state() private activeTab: Tab = "overview";
   @state() private loading = false;
   @state() private error = "";
@@ -291,8 +295,15 @@ export class AIHomeAuditorPanel extends LitElement {
     this.loading = true;
     this.error = "";
     try {
+      if (this.hass?.callApi) {
+        const apiPath = url.replace(/^\/api\//, "");
+        onSuccess(await this.hass.callApi(method, apiPath, body));
+        return;
+      }
+
       const response = await fetch(url, {
         method,
+        credentials: "same-origin",
         headers: body === undefined ? undefined : { "Content-Type": "application/json" },
         body: body === undefined ? undefined : JSON.stringify(body),
       });

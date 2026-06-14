@@ -328,8 +328,15 @@
     async request(method, url, body, onSuccess) {
       this.setState({ loading: true, error: "" });
       try {
+        if (this.hass && typeof this.hass.callApi === "function") {
+          const apiPath = url.replace(/^\/api\//, "");
+          onSuccess(await this.hass.callApi(method, apiPath, body));
+          return;
+        }
+
         const response = await fetch(url, {
           method,
+          credentials: "same-origin",
           headers: body === undefined ? undefined : { "Content-Type": "application/json" },
           body: body === undefined ? undefined : JSON.stringify(body)
         });
