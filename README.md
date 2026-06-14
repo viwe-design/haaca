@@ -31,6 +31,18 @@ Not implemented yet:
 
 ## Installation
 
+### HACS
+
+1. Open HACS.
+2. Add `https://github.com/viwe-design/haaca` as a custom repository.
+3. Select category `Integration`.
+4. Install the latest release.
+5. Restart Home Assistant.
+
+HACS should install a tagged release such as `v0.1.0`, not a raw commit SHA.
+
+### Manual
+
 Copy `custom_components/ai_home_auditor` into your Home Assistant `config/custom_components/` directory.
 
 Restart Home Assistant, then add the integration:

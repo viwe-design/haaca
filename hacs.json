@@ -1,0 +1,6 @@
+{
+  "name": "AI Home Assistant Auditor",
+  "content_in_root": false,
+  "domains": ["ai_home_auditor"],
+  "render_readme": true
+}
