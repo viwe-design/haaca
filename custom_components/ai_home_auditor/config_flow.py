@@ -50,9 +50,9 @@ class AIHomeAuditorConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                         CONF_DRY_RUN: user_input[CONF_DRY_RUN],
                         CONF_DAILY_AUDIT: user_input[CONF_DAILY_AUDIT],
                         CONF_AUTO_FIX: user_input[CONF_AUTO_FIX],
-                        CONF_AUTO_FIX_ALLOWLIST: user_input[
-                            CONF_AUTO_FIX_ALLOWLIST
-                        ],
+                        CONF_AUTO_FIX_ALLOWLIST: _parse_allowlist(
+                            user_input[CONF_AUTO_FIX_ALLOWLIST]
+                        ),
                     },
                 )
 
@@ -70,8 +70,8 @@ class AIHomeAuditorConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     vol.Required(CONF_AUTO_FIX, default=DEFAULT_AUTO_FIX): bool,
                     vol.Required(
                         CONF_AUTO_FIX_ALLOWLIST,
-                        default=list(DEFAULT_AUTO_FIX_ALLOWLIST),
-                    ): list[str],
+                        default=_format_allowlist(DEFAULT_AUTO_FIX_ALLOWLIST),
+                    ): str,
                 }
             ),
             errors=errors,
@@ -92,6 +92,12 @@ class AIHomeAuditorOptionsFlow(config_entries.OptionsFlow):
         self, user_input: dict[str, Any] | None = None
     ) -> config_entries.ConfigFlowResult:
         if user_input is not None:
+            user_input = {
+                **user_input,
+                CONF_AUTO_FIX_ALLOWLIST: _parse_allowlist(
+                    user_input[CONF_AUTO_FIX_ALLOWLIST]
+                ),
+            }
             return self.async_create_entry(title="", data=user_input)
 
         return self.async_show_form(
@@ -118,11 +124,25 @@ class AIHomeAuditorOptionsFlow(config_entries.OptionsFlow):
                     ): bool,
                     vol.Required(
                         CONF_AUTO_FIX_ALLOWLIST,
-                        default=self._config_entry.options.get(
-                            CONF_AUTO_FIX_ALLOWLIST,
-                            list(DEFAULT_AUTO_FIX_ALLOWLIST),
+                        default=_format_allowlist(
+                            self._config_entry.options.get(
+                                CONF_AUTO_FIX_ALLOWLIST,
+                                list(DEFAULT_AUTO_FIX_ALLOWLIST),
+                            )
                         ),
-                    ): list[str],
+                    ): str,
                 }
             ),
         )
+
+
+def _parse_allowlist(value: Any) -> list[str]:
+    if isinstance(value, list):
+        return [str(item).strip() for item in value if str(item).strip()]
+    return [item.strip() for item in str(value).split(",") if item.strip()]
+
+
+def _format_allowlist(value: Any) -> str:
+    if isinstance(value, list):
+        return ", ".join(str(item) for item in value)
+    return str(value)
