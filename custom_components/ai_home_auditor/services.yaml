@@ -1,0 +1,41 @@
+scan:
+  fields: {}
+
+analyze:
+  fields: {}
+
+preview_fix:
+  fields:
+    relative_path:
+      required: true
+      selector:
+        text:
+    new_content:
+      required: true
+      selector:
+        text:
+          multiline: true
+
+apply_fix:
+  fields:
+    relative_path:
+      required: true
+      selector:
+        text:
+    new_content:
+      required: true
+      selector:
+        text:
+          multiline: true
+    confirmed:
+      required: true
+      default: false
+      selector:
+        boolean:
+
+rollback:
+  fields:
+    backup_id:
+      required: true
+      selector:
+        text:

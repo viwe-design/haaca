@@ -1,0 +1,9 @@
+base_url: "https://api.openai.com/v1"
+model: "gpt-4o-mini"
+dry_run: true
+auto_fix: false
+daily_audit: true
+auto_fix_allowlist:
+  - broken_entity_id
+  - deprecated_syntax
+  - invalid_service_call

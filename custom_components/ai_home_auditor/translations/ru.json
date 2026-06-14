@@ -1,0 +1,38 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "AI Home Assistant Auditor",
+        "description": "Настройте OpenAI-compatible API провайдера.",
+        "data": {
+          "api_key": "API-ключ",
+          "base_url": "Базовый URL",
+          "model": "Модель",
+          "dry_run": "Режим dry-run",
+          "daily_audit": "Запускать аудит раз в сутки",
+          "auto_fix": "Включить автоисправление",
+          "auto_fix_allowlist": "Список разрешённых автоисправлений"
+        }
+      }
+    },
+    "error": {
+      "required": "Это поле обязательно"
+    },
+    "abort": {
+      "already_configured": "AI Home Assistant Auditor уже настроен"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Настройки AI Home Assistant Auditor",
+        "data": {
+          "dry_run": "Режим dry-run",
+          "daily_audit": "Запускать аудит раз в сутки",
+          "auto_fix": "Включить автоисправление",
+          "auto_fix_allowlist": "Список разрешённых автоисправлений"
+        }
+      }
+    }
+  }
+}
