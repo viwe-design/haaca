@@ -1,5 +1,9 @@
 # AI Home Assistant Auditor
 
+<p align="center">
+  <img src="assets/ai-home-auditor-icon.svg" alt="AI Home Assistant Auditor icon" width="160" height="160">
+</p>
+
 ![AI Home Assistant Auditor brain cover](assets/ai-home-auditor-brain.png)
 
 AI Home Assistant Auditor is a Home Assistant custom integration that scans local configuration, detects broken entity references in automations and scripts, asks an OpenAI-compatible model for additional audit findings, and safely previews or applies manual YAML fixes.
@@ -41,7 +45,7 @@ Not implemented yet:
 4. Install the latest release.
 5. Restart Home Assistant.
 
-HACS should install a tagged release such as `v0.1.4`, not a raw commit SHA.
+HACS should install a tagged release such as `v0.1.5`, not a raw commit SHA.
 
 ### Manual
 

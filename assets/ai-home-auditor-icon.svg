@@ -1,0 +1,65 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">AI Home Assistant Auditor icon</title>
+  <desc id="desc">Transparent retina-ready icon with a smart home outline, neural brain, and audit shield.</desc>
+  <defs>
+    <linearGradient id="cyanViolet" x1="173" y1="164" x2="851" y2="860" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#21E7FF"/>
+      <stop offset="0.48" stop-color="#1E8BFF"/>
+      <stop offset="1" stop-color="#A855F7"/>
+    </linearGradient>
+    <linearGradient id="brainGradient" x1="332" y1="285" x2="692" y2="704" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#5FF4FF"/>
+      <stop offset="0.52" stop-color="#3B82F6"/>
+      <stop offset="1" stop-color="#C084FC"/>
+    </linearGradient>
+    <radialGradient id="innerGlow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(512 512) rotate(90) scale(430)">
+      <stop offset="0" stop-color="#0EA5E9" stop-opacity="0.42"/>
+      <stop offset="0.55" stop-color="#312E81" stop-opacity="0.22"/>
+      <stop offset="1" stop-color="#020617" stop-opacity="0.96"/>
+    </radialGradient>
+    <filter id="softGlow" x="103" y="103" width="818" height="818" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feGaussianBlur stdDeviation="14" result="blur"/>
+      <feColorMatrix in="blur" type="matrix" values="0 0 0 0 0.1 0 0 0 0 0.72 0 0 0 0 1 0 0 0 0.9 0"/>
+      <feBlend in2="SourceGraphic" mode="screen"/>
+    </filter>
+    <filter id="nodeGlow" x="-40%" y="-40%" width="180%" height="180%" color-interpolation-filters="sRGB">
+      <feGaussianBlur stdDeviation="6" result="blur"/>
+      <feBlend in="SourceGraphic" in2="blur" mode="screen"/>
+    </filter>
+  </defs>
+
+  <rect x="132" y="132" width="760" height="760" rx="190" fill="#020617"/>
+  <rect x="132" y="132" width="760" height="760" rx="190" fill="url(#innerGlow)"/>
+  <rect x="156" y="156" width="712" height="712" rx="166" stroke="url(#cyanViolet)" stroke-width="28"/>
+
+  <g filter="url(#softGlow)">
+    <path d="M280 499L512 280L744 499H681V686H343V499H280Z" stroke="url(#cyanViolet)" stroke-width="36" stroke-linejoin="round"/>
+
+    <path d="M454 309C398 314 357 361 357 421C323 432 299 463 299 501C299 539 323 571 357 582C363 638 410 681 468 681H512V332C497 317 477 307 454 309Z" stroke="url(#brainGradient)" stroke-width="28" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M570 309C626 314 667 361 667 421C701 432 725 463 725 501C725 539 701 571 667 582C661 638 614 681 556 681H512V332C527 317 547 307 570 309Z" stroke="url(#brainGradient)" stroke-width="28" stroke-linecap="round" stroke-linejoin="round"/>
+
+    <path d="M512 350V669" stroke="url(#brainGradient)" stroke-width="20" stroke-linecap="round"/>
+    <path d="M458 393H405M405 393V438M405 438H354" stroke="url(#brainGradient)" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M458 492H384M384 492H340" stroke="url(#brainGradient)" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M462 581H418M418 581V638" stroke="url(#brainGradient)" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M566 393H619M619 393V438M619 438H670" stroke="url(#brainGradient)" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M566 492H640M640 492H684" stroke="url(#brainGradient)" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M562 581H606M606 581V638" stroke="url(#brainGradient)" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"/>
+
+    <g filter="url(#nodeGlow)" fill="#DDFBFF">
+      <circle cx="405" cy="393" r="13"/>
+      <circle cx="354" cy="438" r="13"/>
+      <circle cx="340" cy="492" r="13"/>
+      <circle cx="418" cy="638" r="13"/>
+      <circle cx="619" cy="393" r="13"/>
+      <circle cx="670" cy="438" r="13"/>
+      <circle cx="684" cy="492" r="13"/>
+      <circle cx="606" cy="638" r="13"/>
+    </g>
+  </g>
+
+  <g filter="url(#softGlow)">
+    <path d="M707 612L810 574L913 612V699C913 779 860 840 810 861C760 840 707 779 707 699V612Z" fill="#061A3A" stroke="url(#cyanViolet)" stroke-width="26" stroke-linejoin="round"/>
+    <path d="M761 707L797 744L866 675" stroke="url(#brainGradient)" stroke-width="32" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+</svg>

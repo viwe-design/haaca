@@ -177,8 +177,8 @@ async def _async_register_panel(hass: HomeAssistant) -> None:
     frontend.async_register_built_in_panel(
         hass,
         component_name="custom",
-        sidebar_title="AI Auditor",
-        sidebar_icon="mdi:robot-confused",
+        sidebar_title="AI Аудитор",
+        sidebar_icon="mdi:brain",
         frontend_url_path=DOMAIN,
         require_admin=True,
         config={

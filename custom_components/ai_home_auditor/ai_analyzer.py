@@ -55,10 +55,10 @@ class AIAnalyzer:
                 AuditIssue(
                     issue_id=f"broken-entity-{index}",
                     kind="broken_entity_id",
-                    title=f"Missing entity {entity_id}",
+                    title=f"Отсутствует сущность {entity_id}",
                     explanation=(
-                        f"{source} {source_id} references {entity_id}, but this "
-                        "entity is not present in the entity registry or current states."
+                        f"{source} {source_id} ссылается на {entity_id}, но такой "
+                        "сущности нет в реестре сущностей и текущих состояниях."
                     ),
                     severity="high",
                     risk="medium",
@@ -66,8 +66,8 @@ class AIAnalyzer:
                     source_id=source_id,
                     entity_id=entity_id,
                     suggested_fix=(
-                        "Replace the entity_id with the current entity, remove the "
-                        "condition/action, or restore the integration that provides it."
+                        "Замените entity_id на актуальную сущность, удалите условие "
+                        "или действие, либо восстановите интеграцию, которая создавала эту сущность."
                     ),
                 )
             )
@@ -77,17 +77,17 @@ class AIAnalyzer:
                 AuditIssue(
                     issue_id=f"unavailable-entity-{index}",
                     kind="unavailable_entity",
-                    title=f"Unavailable entity {entity_id}",
+                    title=f"Недоступна сущность {entity_id}",
                     explanation=(
-                        f"{entity_id} is currently unavailable or unknown. Automations "
-                        "depending on it may not fire correctly."
+                        f"{entity_id} сейчас находится в состоянии unavailable или unknown. "
+                        "Автоматизации, которые зависят от неё, могут работать некорректно."
                     ),
                     severity="medium",
                     risk="low",
                     entity_id=entity_id,
                     suggested_fix=(
-                        "Check the device, integration availability, or remove the "
-                        "entity from automations if it was intentionally retired."
+                        "Проверьте устройство и интеграцию либо удалите сущность из "
+                        "автоматизаций, если она больше не используется."
                     ),
                 )
             )
@@ -106,21 +106,23 @@ class AIAnalyzer:
                 {
                     "role": "system",
                     "content": (
-                        "You audit Home Assistant configurations. Return strict JSON "
-                        "with keys issues and suggestions. Never request secrets. "
-                        "Classify severity and risk as low, medium, high, or critical."
+                        "Ты аудируешь конфигурацию Home Assistant. Возвращай строгий JSON "
+                        "с ключами issues и suggestions. Все пользовательские тексты, "
+                        "включая title, explanation, suggested_fix и рекомендации, пиши на русском языке. "
+                        "Никогда не запрашивай секреты. severity и risk оставляй только как "
+                        "low, medium, high или critical."
                     ),
                 },
                 {
                     "role": "user",
                     "content": json.dumps(
                         {
-                            "task": "Audit this Home Assistant scan for errors, weak spots, conflicts, and useful automation ideas.",
+                            "task": "Проведи аудит этого скана Home Assistant: найди ошибки, слабые места, конфликты и полезные идеи автоматизаций. Ответ должен быть на русском языке.",
                             "scan": scan,
                             "required_issue_schema": {
                                 "kind": "string",
                                 "title": "string",
-                                "explanation": "plain language string",
+                                "explanation": "plain Russian language string",
                                 "severity": "low|medium|high|critical",
                                 "risk": "low|medium|high|critical",
                                 "source": "automation|script|entity|integration|null",
@@ -173,7 +175,7 @@ class AIAnalyzer:
                 AuditIssue(
                     issue_id=f"ai-{index}",
                     kind=str(issue.get("kind") or "ai_observation"),
-                    title=str(issue.get("title") or "AI finding"),
+                    title=str(issue.get("title") or "Наблюдение AI"),
                     explanation=str(issue.get("explanation") or ""),
                     severity=self._level(issue.get("severity"), "medium"),
                     risk=self._level(issue.get("risk"), "medium"),

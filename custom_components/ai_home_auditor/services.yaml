@@ -1,41 +1,63 @@
 scan:
+  name: Сканировать конфигурацию
+  description: Собирает данные Home Assistant для аудита.
   fields: {}
 
 analyze:
+  name: Выполнить AI-анализ
+  description: Запускает сканирование при необходимости, отправляет обезличенные данные в AI и сохраняет отчёт.
   fields: {}
 
 preview_fix:
+  name: Показать diff исправления
+  description: Проверяет YAML и показывает diff без изменения файлов.
   fields:
     relative_path:
+      name: Относительный путь
+      description: Путь к файлу внутри конфигурации Home Assistant.
       required: true
       selector:
         text:
     new_content:
+      name: Новое содержимое
+      description: Полный YAML, который будет использован для предпросмотра.
       required: true
       selector:
         text:
           multiline: true
 
 apply_fix:
+  name: Применить исправление
+  description: Создаёт резервную копию, валидирует YAML и применяет изменение только при подтверждении.
   fields:
     relative_path:
+      name: Относительный путь
+      description: Путь к файлу внутри конфигурации Home Assistant.
       required: true
       selector:
         text:
     new_content:
+      name: Новое содержимое
+      description: Полный YAML, который заменит текущий файл.
       required: true
       selector:
         text:
           multiline: true
     confirmed:
+      name: Подтверждение
+      description: Должно быть включено для применения изменения.
       required: true
       default: false
       selector:
         boolean:
 
 rollback:
+  name: Откатить резервную копию
+  description: Восстанавливает файл из ранее созданной резервной копии.
   fields:
     backup_id:
+      name: ID резервной копии
+      description: Идентификатор резервной копии из списка backups.
       required: true
       selector:
         text:

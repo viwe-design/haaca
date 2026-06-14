@@ -187,12 +187,12 @@ class AIHomeAuditorCoordinator:
 
     def _available_actions(self, issue: dict[str, Any]) -> list[dict[str, str]]:
         actions = [
-            {"id": "ignore", "label": "Ignore"},
-            {"id": "recheck", "label": "Recheck"},
-            {"id": "review", "label": "Review"},
+            {"id": "ignore", "label": "Игнорировать"},
+            {"id": "recheck", "label": "Проверить ещё раз"},
+            {"id": "review", "label": "На проверку"},
         ]
         if issue.get("suggested_fix") or issue.get("yaml_fix"):
-            actions.insert(1, {"id": "fix", "label": "Fix"})
+            actions.insert(1, {"id": "fix", "label": "Исправить"})
         return actions
 
     def _scheduled_status(self, status: str, **extra: Any) -> dict[str, Any]:
